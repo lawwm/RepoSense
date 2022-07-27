@@ -102,13 +102,18 @@
         span {{ slice.hash.substr(0, 7) }}
       span.fileTypeLabel(
         v-for="fileType in\
-          filterSelectedFileTypes(Object.keys(slice.fileTypesAndContributionMap))",
+          filterSelectedFileTypes(Object.entries(slice.fileTypesAndContributionMap))",
         vbind:key="fileType",
         v-bind:style="{\
-          'background-color': fileTypeColors[fileType],\
-          'color': getFontColor(fileTypeColors[fileType])\
+          'background-color': fileTypeColors[fileType[0]],\
+          'color': getFontColor(fileTypeColors[fileType[0]])\
           }"
-      ) {{ fileType }}
+      ) {{  }}
+        .tooltip
+          | {{ fileType[0] }}
+          span.tooltip-text
+            span.insertion +{{ fileType[1]["insertions"] }}
+            | &nbsp; - {{ fileType[1]["deletions"] }}
       template(v-if="slice.tags")
         .tag(
           v-for="tag in slice.tags",
@@ -386,7 +391,7 @@ export default {
     },
 
     filterSelectedFileTypes(fileTypes) {
-      return fileTypes.filter((fileType) => this.selectedFileTypes.includes(fileType));
+      return fileTypes.filter(([fileType]) => this.selectedFileTypes.includes(fileType));
     },
 
     getFontColor,
@@ -407,6 +412,9 @@ export default {
 @import '../styles/_colors.scss';
 
 #tab-zoom {
+  .insertion {
+    color: mui-color('green', '400');
+  }
   .zoom {
     &__title {
       &--granularity {
