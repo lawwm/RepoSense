@@ -107,6 +107,7 @@
       .hash
         span {{ slice.hash.substr(0, 7) }}
       span.fileTypeLabel(
+        v-if="containsAtLeastOneSelected(Object.keys(slice.fileTypesAndContributionMap))",
         v-for="fileType in\
           filterSelectedFileTypes(Object.entries(slice.fileTypesAndContributionMap))",
         vbind:key="fileType",
@@ -410,6 +411,14 @@ export default {
 
     filterSelectedFileTypes(fileTypes) {
       return fileTypes.filter(([fileType]) => this.selectedFileTypes.includes(fileType));
+    },
+    containsAtLeastOneSelected(fileTypes) {
+      for (let i = 0; i < fileTypes.length; i += 1) {
+        if (this.selectedFileTypes.includes(fileTypes[i])) {
+          return true;
+        }
+      }
+      return false;
     },
 
     getFontColor,
