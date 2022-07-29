@@ -1,6 +1,6 @@
 import { library } from '@fortawesome/fontawesome-svg-core';
 import {
-  faCaretDown, faCaretRight, faChevronCircleDown, faChevronCircleUp,
+  faCaretUp, faCaretDown, faCaretRight, faChevronCircleDown, faChevronCircleUp,
   faChevronDown, faChevronUp, faCircle, faCode,
   faEllipsisH, faExclamation, faHistory, faListUl,
   faPlusCircle, faSpinner, faTags, faUser, faUserEdit,
@@ -25,7 +25,7 @@ library.add(faChevronUp, faChevronDown, faDatabase, faUser, faCode, faListUl, fa
     faBitbucket);
 
 // v-zoom
-library.add(faTags, faEllipsisH);
+library.add(faTags, faEllipsisH, faCaretUp);
 
 // v-authorship
 library.add(faCaretDown, faCaretRight, faHistory, faUserEdit);

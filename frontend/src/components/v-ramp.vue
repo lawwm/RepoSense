@@ -6,7 +6,8 @@
         draggable="false",
         v-on:click="rampClick",
         v-for="(commit, k) in slice.commitResults.filter(commitResult => commitResult.insertions > 0)",
-        v-bind:href="getLink(commit)", target="_blank",
+        v-bind:href="getRedirectLink(commit)",
+        v-bind:target="getTarget()",
         v-bind:title="getContributionMessage(slice, commit)",
         v-bind:class="'ramp__slice--color' + getSliceColor(slice.date)",
         v-bind:style="{\
@@ -35,7 +36,8 @@
 <script>
 export default {
   name: 'v-ramp',
-  props: ['groupby', 'user', 'tframe', 'avgsize', 'sdate', 'udate', 'mergegroup', 'fromramp', 'filtersearch'],
+  props: ['groupby', 'user', 'tframe', 'avgsize', 'sdate', 'udate',
+      'mergegroup', 'fromramp', 'filtersearch', 'shouldJumpToCommit'],
   data() {
     return {
       rampSize: 0.01,
@@ -43,8 +45,18 @@ export default {
   },
 
   methods: {
+    getTarget() {
+      return this.shouldJumpToCommit
+        ? '_self'
+        : '_blank';
+    },
     getLink(commit) {
       return window.getCommitLink(commit.repoId, commit.hash);
+    },
+    getRedirectLink(commit) {
+      return this.shouldJumpToCommit
+        ? `#${commit.hash}`
+        : this.getLink(commit);
     },
     getWidth(slice) {
       if (slice.insertions === 0) {
