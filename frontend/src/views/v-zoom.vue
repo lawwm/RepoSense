@@ -441,11 +441,14 @@ export default {
 #tab-zoom {
   .scrollButton {
     bottom: 3rem;
-    color: mui-color('grey', '700');
+    color: mui-color('grey', '500');
     cursor: pointer;
     position: -webkit-sticky;
     position: fixed;
     right: 3rem;
+  }
+  .scrollButton:hover {
+    color: mui-color('grey', '900');
   }
   :target:before {
     content: '';
@@ -499,7 +502,13 @@ export default {
 
     &:focus,
     &:focus-within {
-      border: 1px solid mui-color('blue', '500');
+      border: 1px solid mui-color('blue', '400');
+      box-shadow: 0 0 6px mui-color('blue', '400');
+      -webkit-transition: all .5s ease-in-out;
+      -moz-transition: all .5s ease-in-out;
+      -ms-transition: all .5s ease-in-out;
+      -o-transition: all .5s ease-in-out;
+      transition: all .5s ease-in-out;
     }
 
     &.active {
