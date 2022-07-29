@@ -98,7 +98,8 @@
       v-bind:key="slice.hash",
       v-bind:class="{ 'message-body active': slice.messageBody !== '' }"
     )
-      a.message-title(v-bind:href="getSliceLink(slice)", target="_blank", v-bind:id="slice.hash")
+      a.message-title(v-bind:href="getSliceLink(slice)", target="_blank",
+        v-bind:class="`commit-${slice.hash}`")
         .within-border {{ slice.messageTitle.substr(0, 50) }}
         .not-within-border(v-if="slice.messageTitle.length > 50")
           |{{ slice.messageTitle.substr(50) }}
@@ -298,10 +299,7 @@ export default {
     },
 
     scrollToCommit(tag, commit) {
-      console.log(tag, commit);
-      console.log(`${commit}`);
-      const el = document.getElementById(`${commit}`);
-      // const el = this.$el.getElementsByClassName(`${commit} ${tag}`)[0];
+      const el = this.$el.getElementsByClassName(`${commit} ${tag}`)[0];
       if (el) {
         el.focus();
       }
@@ -455,9 +453,6 @@ export default {
     height: 75px;
     margin: -75px 0 0;
   }
-  .insertion {
-    color: mui-color('green', '400');
-  }
   .zoom {
     &__title {
       &--granularity {
@@ -543,6 +538,10 @@ export default {
         border: 1px solid mui-color('blue', '500');
         outline: none;
       }
+    }
+
+    .insertion {
+      color: mui-color('green', '400');
     }
 
     &--button {
