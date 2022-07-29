@@ -17,12 +17,13 @@ public class CommitResult {
     private final String messageBody;
     private final String[] tags;
     private final Map<FileType, ContributionPair> fileTypesAndContributionMap;
-
+    private final String filesChanged;
     private final transient Author author;
     private final transient LocalDateTime time;
 
     public CommitResult(Author author, String hash, LocalDateTime time, String messageTitle,
-            String messageBody, String[] tags, Map<FileType, ContributionPair> fileTypesAndContributionMap) {
+            String messageBody, String[] tags, 
+            Map<FileType, ContributionPair> fileTypesAndContributionMap, String filesChanged) {
         this.author = author;
         this.hash = hash;
         this.time = time;
@@ -30,6 +31,7 @@ public class CommitResult {
         this.messageBody = messageBody;
         this.tags = tags;
         this.fileTypesAndContributionMap = fileTypesAndContributionMap;
+        this.filesChanged = filesChanged;
     }
 
     public CommitResult(Author author, String hash, LocalDateTime time, String messageTitle, String messageBody,
@@ -41,6 +43,7 @@ public class CommitResult {
         this.messageBody = messageBody;
         this.tags = tags;
         this.fileTypesAndContributionMap = Collections.emptyMap();
+        this.filesChanged = "0";
     }
 
     public String getMessageTitle() {
@@ -61,6 +64,10 @@ public class CommitResult {
 
     public String getHash() {
         return hash;
+    }
+
+    public String getFilesChanged() {
+        return filesChanged;
     }
 
     public LocalDateTime getTime() {

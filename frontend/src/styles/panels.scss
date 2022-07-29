@@ -88,6 +88,18 @@
   }
 }
 
+.filesChanged {
+  background-color: mui-color('blue-grey', '100');
+  border-radius: 5px;
+  display: inline-block;
+  margin: 0 5px 5px 0;
+  padding: 0 5px;
+
+  span {
+    text-align: center;
+  }
+}
+
 .fileTypes {
   align-items: center;
   display: flex;

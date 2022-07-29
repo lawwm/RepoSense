@@ -106,6 +106,8 @@
       span &nbsp; ({{ slice.insertions }} lines) &nbsp;
       .hash
         span {{ slice.hash.substr(0, 7) }}
+      .filesChanged
+        span {{ formatFilesChanged(slice.filesChanged) }}
       span.fileTypeLabel(
         v-if="containsAtLeastOneSelected(Object.keys(slice.fileTypesAndContributionMap))",
         v-for="fileType in\
@@ -276,6 +278,11 @@ export default {
   },
 
   methods: {
+    formatFilesChanged(filesChanged) {
+      return filesChanged === '1'
+        ? '1 file changed'
+        : `${filesChanged} files changed`;
+    },
     observeToDisplayScroll(entries) {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {

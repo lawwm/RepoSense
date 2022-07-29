@@ -46,6 +46,8 @@ public class CommitInfoAnalyzer {
     private static final String LOG_SPLITTER = "\\|\\n\\|";
     private static final String REF_SPLITTER = ",\\s";
     private static final String NEW_LINE_SPLITTER = "\\n";
+    private static final String WHITE_SPACE_SPLITTER = " ";
+    private static final String COMMA_SPLITTER = ",";
     private static final String TAG_PREFIX = "tag:";
 
     private static final int COMMIT_HASH_INDEX = 0;
@@ -118,9 +120,10 @@ public class CommitInfoAnalyzer {
         String[] fileTypeContributions = Arrays.copyOfRange(statInfos, 0, statInfos.length - 1);
         Map<FileType, ContributionPair> fileTypeAndContributionMap =
                 getFileTypesAndContribution(fileTypeContributions, config);
+        String filesChanged = getFilesChanged(statInfos);
 
         return new CommitResult(author, hash, adjustedDate, messageTitle, messageBody, tags,
-                fileTypeAndContributionMap);
+                fileTypeAndContributionMap, filesChanged);
     }
 
     /**
@@ -192,5 +195,11 @@ public class CommitInfoAnalyzer {
     private static String getCommitMessageBody(String raw) {
         Matcher matcher = MESSAGEBODY_LEADING_PATTERN.matcher(raw);
         return matcher.replaceAll("");
+    }
+
+    private static String getFilesChanged(String[] statInfos) {
+        String[] summaryStatsInfo = statInfos[statInfos.length - 1].split(COMMA_SPLITTER);
+        String filesChanged = summaryStatsInfo[0].split(WHITE_SPACE_SPLITTER)[1];
+        return filesChanged;
     }
 }
