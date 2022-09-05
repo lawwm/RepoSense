@@ -1,7 +1,11 @@
 <template lang="pug">
 #zoom
-  .panel-title
+  div
+  .panel-title(v-bind:id="`scrollToTop`")
     span Commits Panel
+  a.scrollButton(v-bind:href="`#scrollToTop`", target="_self",
+    v-show="shouldShowScrollToTop")
+    font-awesome-icon.fa-2xl(:icon="['fas', 'chevron-up']")
   .toolbar--multiline(v-if="filteredUser.commits.length && totalCommitMessageBodyCount")
     a(
       v-if="expandedCommitMessagesCount < totalCommitMessageBodyCount",
@@ -38,7 +42,7 @@
             .tag(
               v-for="tag in commitResult.tags",
               vbind:key="tag",
-              v-on:click="scrollToCommit(tag, `tag ${commitResult.hash}`)"
+              v-on:click="scrollToCommit(tag, commitResult.hash)"
             )
               font-awesome-icon(icon="tags")
               span &nbsp;{{ tag }}
@@ -52,7 +56,8 @@
     v-bind:avgsize="info.zAvgCommitSize",
     v-bind:mergegroup="info.zIsMerge",
     v-bind:fromramp="info.zFromRamp",
-    v-bind:filtersearch="info.zFilterSearch")
+    v-bind:filtersearch="info.zFilterSearch"
+    v-bind:shouldJumpToCommit="true")
 
   .sorting.mui-form--inline
     .mui-select.sort-by
@@ -93,23 +98,31 @@
       v-bind:key="slice.hash",
       v-bind:class="{ 'message-body active': slice.messageBody !== '' }"
     )
-      a.message-title(v-bind:href="getSliceLink(slice)", target="_blank")
+      a.message-title(v-bind:href="getSliceLink(slice)", target="_blank",
+        v-bind:class="`commit-${slice.hash}`")
         .within-border {{ slice.messageTitle.substr(0, 50) }}
         .not-within-border(v-if="slice.messageTitle.length > 50")
           |{{ slice.messageTitle.substr(50) }}
       span &nbsp; ({{ slice.insertions }} lines) &nbsp;
       .hash
         span {{ slice.hash.substr(0, 7) }}
+      .filesChanged
+        span {{ formatFilesChanged(slice.filesChanged) }}
       span.fileTypeLabel(
         v-if="containsAtLeastOneSelected(Object.keys(slice.fileTypesAndContributionMap))",
         v-for="fileType in\
-          Object.keys(slice.fileTypesAndContributionMap)",
+          filterSelectedFileTypes(Object.entries(slice.fileTypesAndContributionMap))",
         vbind:key="fileType",
         v-bind:style="{\
-          'background-color': fileTypeColors[fileType],\
-          'color': getFontColor(fileTypeColors[fileType])\
+          'background-color': fileTypeColors[fileType[0]],\
+          'color': getFontColor(fileTypeColors[fileType[0]])\
           }"
-      ) {{ fileType }}
+      ) {{  }}
+        .tooltip
+          | {{ fileType[0] }}
+          span.tooltip-text
+            span.insertion +{{ fileType[1]["insertions"] }}
+            | &nbsp; - {{ fileType[1]["deletions"] }}
       template(v-if="slice.tags")
         .tag(
           v-for="tag in slice.tags",
@@ -157,6 +170,8 @@ export default {
   },
   data() {
     return {
+      shouldShowScrollToTop: false,
+      observer: null,
       expandedCommitMessagesCount: this.totalCommitMessageBodyCount,
       ...zoomInitialState(),
     };
@@ -263,6 +278,21 @@ export default {
   },
 
   methods: {
+    formatFilesChanged(filesChanged) {
+      return filesChanged === '1'
+        ? '1 file changed'
+        : `${filesChanged} files changed`;
+    },
+    observeToDisplayScroll(entries) {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          this.shouldShowScrollToTop = false;
+        } else {
+          this.shouldShowScrollToTop = true;
+        }
+      });
+    },
+
     initiate() {
       // This code crashes if info.zUser is not defined
       this.updateFileTypes();
@@ -386,6 +416,9 @@ export default {
       window.encodeHash();
     },
 
+    filterSelectedFileTypes(fileTypes) {
+      return fileTypes.filter(([fileType]) => this.selectedFileTypes.includes(fileType));
+    },
     containsAtLeastOneSelected(fileTypes) {
       for (let i = 0; i < fileTypes.length; i += 1) {
         if (this.selectedFileTypes.includes(fileTypes[i])) {
@@ -402,7 +435,16 @@ export default {
     this.retrieveHashes();
     this.setInfoHash();
   },
+  mounted() {
+    this.observer = new IntersectionObserver(
+        this.observeToDisplayScroll,
+        { threshold: 0.5 },
+    );
+    const el = document.getElementById('scrollToTop');
+    this.observer.observe(el);
+  },
   beforeUnmount() {
+    this.observer.disconnect();
     this.removeZoomHashes();
   },
 };
@@ -413,6 +455,23 @@ export default {
 @import '../styles/_colors.scss';
 
 #tab-zoom {
+  .scrollButton {
+    bottom: 3rem;
+    color: mui-color('grey', '500');
+    cursor: pointer;
+    position: -webkit-sticky;
+    position: fixed;
+    right: 3rem;
+  }
+  .scrollButton:hover {
+    color: mui-color('grey', '900');
+  }
+  :target:before {
+    content: '';
+    display: block;
+    height: 75px;
+    margin: -75px 0 0;
+  }
   .zoom {
     &__title {
       &--granularity {
@@ -459,7 +518,13 @@ export default {
 
     &:focus,
     &:focus-within {
-      border: 1px solid mui-color('blue', '500');
+      border: 1px solid mui-color('blue', '400');
+      box-shadow: 0 0 6px mui-color('blue', '400');
+      -webkit-transition: all .5s ease-in-out;
+      -moz-transition: all .5s ease-in-out;
+      -ms-transition: all .5s ease-in-out;
+      -o-transition: all .5s ease-in-out;
+      transition: all .5s ease-in-out;
     }
 
     &.active {
@@ -498,6 +563,10 @@ export default {
         border: 1px solid mui-color('blue', '500');
         outline: none;
       }
+    }
+
+    .insertion {
+      color: mui-color('green', '400');
     }
 
     &--button {

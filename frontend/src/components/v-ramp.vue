@@ -4,9 +4,10 @@
     template(v-for="(slice, j) in user.commits")
       a.ramp__slice(
         draggable="false",
-        v-on:click="rampClick",
         v-for="(commit, k) in slice.commitResults.filter(commitResult => commitResult.insertions > 0)",
-        v-bind:href="getLink(commit)", target="_blank",
+        v-on:click="rampClick(commit, $event)",
+        v-bind:href="getLink(commit)",
+        v-bind:target="getTarget()",
         v-bind:title="getContributionMessage(slice, commit)",
         v-bind:class="'ramp__slice--color' + getSliceColor(slice.date)",
         v-bind:style="{\
@@ -35,7 +36,8 @@
 <script>
 export default {
   name: 'v-ramp',
-  props: ['groupby', 'user', 'tframe', 'avgsize', 'sdate', 'udate', 'mergegroup', 'fromramp', 'filtersearch'],
+  props: ['groupby', 'user', 'tframe', 'avgsize', 'sdate', 'udate',
+      'mergegroup', 'fromramp', 'filtersearch', 'shouldJumpToCommit'],
   data() {
     return {
       rampSize: 0.01,
@@ -43,8 +45,15 @@ export default {
   },
 
   methods: {
+    getTarget() {
+      return this.shouldJumpToCommit
+        ? '_self'
+        : '_blank';
+    },
     getLink(commit) {
-      return window.getCommitLink(commit.repoId, commit.hash);
+      return this.shouldJumpToCommit
+        ? undefined
+        : window.getCommitLink(commit.repoId, commit.hash);
     },
     getWidth(slice) {
       if (slice.insertions === 0) {
@@ -118,7 +127,14 @@ export default {
     },
 
     // Prevent browser from switching to new tab when clicking ramp
-    rampClick(evt) {
+    rampClick(commit, evt) {
+      if (this.shouldJumpToCommit) {
+        const el = document.getElementsByClassName(`commit-${commit.hash}`)[0];
+        if (el) {
+          el.focus();
+        }
+      }
+
       const isKeyPressed = window.isMacintosh ? evt.metaKey : evt.ctrlKey;
       if (isKeyPressed) {
         evt.preventDefault();
